@@ -39,11 +39,7 @@ const Answer = ({ word }: { word: string }) => {
           </button>
         </div>
       )}
-      <div
-        class={`select-none text-2xl transition-all ${
-          revealed ? "" : "blur-sm"
-        }`}
-      >
+      <div class={`select-none text-2xl ${revealed ? "" : "blur-sm"}`}>
         <WordleWord
           guess={word
             .split("")
