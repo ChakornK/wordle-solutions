@@ -10,16 +10,18 @@ export const Home = () => {
     <main class="text-text-light dark:text-text-dark flex h-full flex-col items-center gap-6 p-8">
       <h1 class="text-4xl font-bold">Wordle Solutions</h1>
 
-      {Object.entries(JSON.parse(JSON.stringify(SOLUTIONS))).map(
-        ([date, { id, word }]: [string, Solution]) => (
-          <div key={date} class="flex flex-col gap-2">
-            <p>
-              <span class="font-bold">{date}</span> - No. {id}
-            </p>
-            <Answer word={word} />
-          </div>
-        )
-      )}
+      <div class="m-auto flex flex-wrap justify-center gap-8">
+        {Object.entries(JSON.parse(JSON.stringify(SOLUTIONS))).map(
+          ([date, { id, word }]: [string, Solution]) => (
+            <div key={date} class="flex flex-col gap-2">
+              <p>
+                <span class="font-bold">{date}</span> - No. {id}
+              </p>
+              <Answer word={word} />
+            </div>
+          )
+        )}
+      </div>
     </main>
   );
 };
