@@ -11,12 +11,16 @@ import "./style.css";
 import { ConstraintProvider } from "../../provider/Constraint";
 import { guessResult } from "../../lib/solver";
 import { WORDS } from "../../data/wordle/words";
+import { Overlay } from "../../components/Overlay";
 
 export const Home = () => {
   const [rawGuesses, setRawGuesses] = useState<string[]>([]);
   const [pendingGuess, setPendingGuess] = useState<string>("");
   const [guesses, setGuesses] = useState<WordleGuess[]>([]);
   const [targetSolution, setTargetSolution] = useState<string>("");
+
+  const [solutionSelectorVisible, setSolutionSelectorVisible] =
+    useState<boolean>(true);
 
   useEffect(() => {
     const d = new Date().toISOString().split("T")[0];
@@ -44,7 +48,13 @@ export const Home = () => {
                   {targetSolution ===
                   SOLUTIONS[new Date().toISOString().split("T")[0]].word
                     ? "today"
-                    : new Date()
+                    : targetSolution &&
+                      new Date(
+                        Object.entries(SOLUTIONS).find(
+                          ([_, { word }]) =>
+                            word.toLowerCase() === targetSolution.toLowerCase()
+                        )[0]
+                      )
                         .toDateString()
                         .split(" ")
                         .slice(1, 3)
@@ -58,7 +68,10 @@ export const Home = () => {
                   .map((letter) => ({ letter, status: LetterStatus.correct }))}
               />
             </div>
-            <button class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2">
+            <button
+              class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2"
+              onClick={() => setSolutionSelectorVisible(true)}
+            >
               Change
             </button>
           </div>
@@ -76,6 +89,36 @@ export const Home = () => {
           />
         </div>
       </main>
+
+      <Overlay visible={solutionSelectorVisible}>
+        <div class="bg-bg-light dark:bg-bg-dark divide-border-faint-light sm:min-w-sm border-border-faint-light/20 dark:border-border-faint-dark/20 dark:divide-border-faint-dark text-text-light dark:text-text-dark absolute left-1/2 top-1/2 flex h-full w-full -translate-x-1/2 -translate-y-1/2 flex-col divide-y overflow-clip rounded border sm:h-fit sm:max-h-[80vh] sm:w-fit">
+          <div class="flex justify-between p-8 py-4 sm:p-4">
+            <p class="font-bold uppercase sm:ml-4">Select solution</p>
+            <button onClick={() => setSolutionSelectorVisible(false)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="20"
+                viewBox="0 0 24 24"
+                width="20"
+              >
+                <path
+                  fill="currentColor"
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <div class="overflow-y-auto p-8">
+            <SolutionsList
+              onClick={(word) => {
+                setTargetSolution(word);
+                setRawGuesses([]);
+                setSolutionSelectorVisible(false);
+              }}
+            />
+          </div>
+        </div>
+      </Overlay>
     </ConstraintProvider>
   );
 };
@@ -176,45 +219,27 @@ const Keyboard = ({
   );
 };
 
-const SolutionsList = () => {
+const SolutionsList = ({ onClick }: { onClick: (word: string) => void }) => {
   return (
-    <div class="flex flex-col items-center gap-8">
+    <div class="flex flex-col items-stretch gap-4">
       {Object.entries(JSON.parse(JSON.stringify(SOLUTIONS))).map(
         ([date, { id, word }]: [string, Solution]) => (
-          <div key={date} class="flex flex-col gap-2">
-            <p>
+          <button
+            key={date}
+            class="bg-text-light/10 dark:bg-text-dark/10 hover:bg-text-light/20 dark:hover:bg-text-dark/20 flex cursor-pointer flex-col gap-2 rounded p-4 transition-colors"
+            onClick={() => onClick(word)}
+          >
+            <p class="text-left">
               <span class="font-bold">{date}</span> - No. {id}
             </p>
-            <Answer word={word} />
-          </div>
+            <WordleWord
+              guess={word
+                .split("")
+                .map((letter) => ({ letter, status: LetterStatus.correct }))}
+            />
+          </button>
         )
       )}
-    </div>
-  );
-};
-
-const Answer = ({ word }: { word: string }) => {
-  const [revealed, setRevealed] = useState(false);
-
-  return (
-    <div class="*:col-start-1 *:row-start-1 grid">
-      {!revealed && (
-        <div class="flex h-full items-center justify-center">
-          <button
-            class="bg-bg-light dark:bg-bg-dark z-10 cursor-pointer rounded-full px-4 py-2 text-sm"
-            onClick={() => setRevealed(!revealed)}
-          >
-            {revealed ? "Hide" : "Reveal"} Answer
-          </button>
-        </div>
-      )}
-      <div class={`select-none text-2xl ${revealed ? "" : "blur-sm"}`}>
-        <WordleWord
-          guess={word
-            .split("")
-            .map((letter) => ({ letter, status: LetterStatus.correct }))}
-        />
-      </div>
     </div>
   );
 };
