@@ -48,6 +48,24 @@ const Consent = ({ onContinue }: { onContinue: () => void }) => {
   );
 };
 
+const getWordleDate = (targetSolution: string) => {
+  const d = new Date().toISOString().split("T")[0];
+  if (targetSolution === SOLUTIONS[d].word) return "today's";
+
+  const future =
+    targetSolution &&
+    Object.entries(SOLUTIONS).find(
+      ([_, { word }]) => word.toLowerCase() === targetSolution.toLowerCase()
+    );
+  if (future) {
+    return `${new Date(future[0])
+      .toDateString()
+      .split(" ")
+      .slice(1, 3)
+      .join(" ")}'s`;
+  }
+  return "custom";
+};
 const App = () => {
   const { constraints, setConstraints } = useContext(Constraint);
 
@@ -127,24 +145,7 @@ const App = () => {
         <div class="bg-surface-light/30 dark:bg-surface-dark/10 flex w-full items-center justify-between gap-2 rounded-lg py-4 pl-4 pr-6 text-sm">
           <div>
             <p class="mb-1">
-              Solving{" "}
-              <b>
-                {targetSolution ===
-                SOLUTIONS[new Date().toISOString().split("T")[0]].word
-                  ? "today"
-                  : targetSolution &&
-                    new Date(
-                      Object.entries(SOLUTIONS).find(
-                        ([_, { word }]) =>
-                          word.toLowerCase() === targetSolution.toLowerCase()
-                      )[0]
-                    )
-                      .toDateString()
-                      .split(" ")
-                      .slice(1, 3)
-                      .join(" ")}
-              </b>
-              's wordle
+              Solving for <b>{getWordleDate(targetSolution)}</b> word
             </p>
             <WordleWord
               guess={targetSolution
@@ -230,6 +231,28 @@ const App = () => {
               onClick={(word) => {
                 setTargetSolution(word);
                 setSolutionSelectorVisible(false);
+              }}
+            />
+          </div>
+          <div class="flex items-center gap-2 p-8">
+            <p>Custom word: </p>
+            <input
+              type="text"
+              class="border-border-light dark:border-border-dark w-[9ch] border-b-2 px-1 py-0.5 uppercase outline-none"
+              onInput={(e) => {
+                e.preventDefault();
+                (e.target as HTMLInputElement).value = (
+                  e.target as HTMLInputElement
+                ).value
+                  .toLowerCase()
+                  .replaceAll(/[^a-z]/g, "")
+                  .slice(0, 5);
+                const v = (e.target as HTMLInputElement).value;
+                if (v.length == 5 && WORDS.includes(v)) {
+                  setTargetSolution(v.toLowerCase());
+                  (e.target as HTMLInputElement).value = "";
+                  setSolutionSelectorVisible(false);
+                }
               }}
             />
           </div>
