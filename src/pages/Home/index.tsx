@@ -13,6 +13,9 @@ import { Constraints, guessResult, nextWord } from "../../lib/solver";
 import { WORDS } from "../../data/wordle/words";
 import { Overlay } from "../../components/Overlay";
 
+const currentDate = new Date(
+  Date.now() - new Date().getTimezoneOffset() * 60000
+);
 export const Home = () => {
   const [consented, setConsented] = useState<boolean>(false);
 
@@ -49,7 +52,7 @@ const Consent = ({ onContinue }: { onContinue: () => void }) => {
 };
 
 const getWordleDate = (targetSolution: string) => {
-  const d = new Date().toISOString().split("T")[0];
+  const d = currentDate.toISOString().split("T")[0];
   if (targetSolution === SOLUTIONS[d].word) return "today's";
 
   const future =
@@ -89,7 +92,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const d = new Date().toISOString().split("T")[0];
+    const d = currentDate.toISOString().split("T")[0];
     const solution = SOLUTIONS[d];
     setTargetSolution(solution.word);
   }, []);
