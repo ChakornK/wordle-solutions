@@ -37,7 +37,6 @@ const App = () => {
   const resetBoard = useCallback(() => {
     setRawGuesses([]);
     setPendingGuess("");
-    setSolutionSelectorVisible(false);
     setConstraints({
       absent: [],
       present: [],
@@ -204,6 +203,7 @@ const App = () => {
             <SolutionsList
               onClick={(word) => {
                 setTargetSolution(word);
+                setSolutionSelectorVisible(false);
               }}
             />
           </div>
