@@ -159,6 +159,7 @@ const App = () => {
           <button
             class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2 font-medium"
             onClick={() => {
+              if (rawGuesses.length >= 6) return;
               const w = nextWord(constraints);
               setRawGuesses([...rawGuesses, w]);
               setPendingGuess("");
@@ -173,6 +174,7 @@ const App = () => {
           onEnter={() => {
             if (pendingGuess.length !== 5) return;
             if (!WORDS.includes(pendingGuess)) return;
+            if (rawGuesses.length >= 6) return;
             setRawGuesses([...rawGuesses, pendingGuess]);
             setPendingGuess("");
           }}
