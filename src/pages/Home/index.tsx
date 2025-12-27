@@ -139,7 +139,7 @@ const App = () => {
 
         <div class="flex items-center gap-2">
           <button
-            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2 font-medium"
+            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2"
             onClick={(e) => {
               resetBoard();
               (e.target as HTMLButtonElement).blur();
@@ -148,7 +148,7 @@ const App = () => {
             Reset
           </button>
           <button
-            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2 font-medium"
+            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2"
             onClick={(e) => {
               setRawGuesses(rawGuesses.slice(0, -1));
               (e.target as HTMLButtonElement).blur();
@@ -157,7 +157,7 @@ const App = () => {
             Undo
           </button>
           <button
-            class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2 font-medium"
+            class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2"
             onClick={() => {
               if (rawGuesses.length >= 6) return;
               const w = nextWord(constraints);
