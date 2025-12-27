@@ -33,8 +33,9 @@ export default defineConfig({
 		        <meta name="twitter:card" content="summary">`;
           return html.replace(/(?<=<head>)/, metaHtml);
         })(html, {
-          title: "Wordle Answers",
-          description: "View future Wordle answers!",
+          title: "Wordle Solver",
+          description:
+            "Get the best guess suggestions for today's Wordle and view future Wordle answers!",
         });
       },
     },
