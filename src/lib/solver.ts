@@ -29,14 +29,21 @@ export const nextWord = (constraints: Constraints) => {
         )
     );
 
+  if (w.length == 1) {
+    return w[0];
+  }
+
   const freq = letterFreq(w);
 
   const lettersByFreq = Object.entries(freq).filter(
     ([l]) => !constraints.present.includes(l)
   );
+  if (lettersByFreq.length == 0) {
+    return w[Math.floor(Math.random() * w.length)];
+  }
 
-  const candidates = (constraints.present.length > 2 ? w : WORDS).filter(
-    (word) => word.split("").some((l) => lettersByFreq.find(([lf]) => lf === l))
+  const candidates = WORDS.filter((word) =>
+    word.split("").some((l) => lettersByFreq.find(([lf]) => lf === l))
   );
   const candidatesRanked = candidates
     .map((word) => {
