@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "preact/hooks";
+import { useCallback, useContext, useEffect, useState } from "preact/hooks";
 import { WordleWord } from "../../components/WordleWord";
 import { SOLUTIONS } from "../../data/wordle/solutions";
 import {
@@ -34,14 +34,9 @@ const App = () => {
   const [solutionSelectorVisible, setSolutionSelectorVisible] =
     useState<boolean>(true);
 
-  useEffect(() => {
-    const d = new Date().toISOString().split("T")[0];
-    const solution = SOLUTIONS[d];
-    setTargetSolution(solution.word);
-  }, []);
-
-  useEffect(() => {
+  const resetBoard = useCallback(() => {
     setRawGuesses([]);
+    setPendingGuess("");
     setSolutionSelectorVisible(false);
     setConstraints({
       absent: [],
@@ -49,6 +44,16 @@ const App = () => {
       incorrect: {},
       correct: {},
     });
+  }, []);
+
+  useEffect(() => {
+    const d = new Date().toISOString().split("T")[0];
+    const solution = SOLUTIONS[d];
+    setTargetSolution(solution.word);
+  }, []);
+
+  useEffect(() => {
+    resetBoard();
   }, [targetSolution]);
 
   useEffect(() => {
@@ -59,22 +64,30 @@ const App = () => {
     );
 
     if (rawGuesses.length === 0) return;
-    const res = guessResult(rawGuesses[rawGuesses.length - 1], targetSolution);
-    const newConstraints = constraints;
-    for (let i = 0; i < 5; i++) {
-      if (res[i].status === LetterStatus.correct) {
-        newConstraints.correct[i] = res[i].letter;
-        if (newConstraints.present.indexOf(res[i].letter) === -1)
-          newConstraints.present.push(res[i].letter);
-      } else if (res[i].status === LetterStatus.present) {
-        newConstraints.incorrect[i] = [
-          ...(newConstraints.incorrect[i] || []),
-          res[i].letter,
-        ];
-        if (newConstraints.present.indexOf(res[i].letter) === -1)
-          newConstraints.present.push(res[i].letter);
-      } else if (res[i].status === LetterStatus.absent) {
-        newConstraints.absent.push(res[i].letter);
+
+    const newConstraints = {
+      absent: [],
+      present: [],
+      incorrect: {},
+      correct: {},
+    };
+    for (const word of rawGuesses) {
+      const res = guessResult(word, targetSolution);
+      for (let i = 0; i < 5; i++) {
+        if (res[i].status === LetterStatus.correct) {
+          newConstraints.correct[i] = res[i].letter;
+          if (newConstraints.present.indexOf(res[i].letter) === -1)
+            newConstraints.present.push(res[i].letter);
+        } else if (res[i].status === LetterStatus.present) {
+          newConstraints.incorrect[i] = [
+            ...(newConstraints.incorrect[i] || []),
+            res[i].letter,
+          ];
+          if (newConstraints.present.indexOf(res[i].letter) === -1)
+            newConstraints.present.push(res[i].letter);
+        } else if (res[i].status === LetterStatus.absent) {
+          newConstraints.absent.push(res[i].letter);
+        }
       }
     }
     setConstraints(newConstraints);
@@ -123,16 +136,38 @@ const App = () => {
         </div>
 
         <GameBoard guesses={guesses} pending={pendingGuess} />
-        <button
-          class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2 font-medium"
-          onClick={() => {
-            const w = nextWord(constraints);
-            setRawGuesses([...rawGuesses, w]);
-            setPendingGuess("");
-          }}
-        >
-          Suggest a guess
-        </button>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2 font-medium"
+            onClick={(e) => {
+              resetBoard();
+              (e.target as HTMLButtonElement).blur();
+            }}
+          >
+            Reset
+          </button>
+          <button
+            class="border-text-light dark:border-text-dark cursor-pointer rounded-full border px-4 py-2 font-medium"
+            onClick={(e) => {
+              setRawGuesses(rawGuesses.slice(0, -1));
+              (e.target as HTMLButtonElement).blur();
+            }}
+          >
+            Undo
+          </button>
+          <button
+            class="bg-text-light dark:bg-text-dark text-bg-light dark:text-bg-dark cursor-pointer rounded-full px-4 py-2 font-medium"
+            onClick={() => {
+              const w = nextWord(constraints);
+              setRawGuesses([...rawGuesses, w]);
+              setPendingGuess("");
+            }}
+          >
+            Suggest a guess
+          </button>
+        </div>
+
         <Keyboard
           onInput={(k) => setPendingGuess((pendingGuess + k).slice(0, 5))}
           onEnter={() => {
