@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "motion": "^12.23.26",
     "preact": "^10.28.1",
     "preact-iso": "^2.11.1",
     "preact-render-to-string": "^6.6.4",
