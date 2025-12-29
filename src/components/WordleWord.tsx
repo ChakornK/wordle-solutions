@@ -15,6 +15,24 @@ export const WordleWord = ({ guess }: { guess: WordleGuess }) => {
   const [pending, setPending] = useState<boolean>(
     guess.every((l) => l.status === LetterStatus.pending)
   );
+
+  useEffect(() => {
+    if (
+      guess.length > 0 &&
+      guess.every((l) => l.status !== LetterStatus.pending)
+    ) {
+      animate(
+        ".letter-front",
+        {
+          opacity: 0,
+        },
+        {
+          duration: 0,
+        }
+      );
+    }
+  }, []);
+
   useEffect(() => {
     if (!pending) {
       animate(
