@@ -151,6 +151,7 @@ const App = () => {
               Solving for <b>{getWordleDate(targetSolution)}</b> word
             </p>
             <WordleWord
+              forceGreen={true}
               guess={targetSolution
                 .split("")
                 .map((letter) => ({ letter, status: LetterStatus.correct }))}

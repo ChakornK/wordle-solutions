@@ -10,17 +10,20 @@ const variants = [
   "border border-2 bg-bg-light dark:bg-bg-dark border-border-faint-light dark:border-border-faint-dark",
 ];
 
-export const WordleWord = ({ guess }: { guess: WordleGuess }) => {
+export const WordleWord = ({
+  guess,
+  forceGreen,
+}: {
+  guess: WordleGuess;
+  forceGreen?: boolean;
+}) => {
   const [scope, animate] = useAnimate();
   const [pending, setPending] = useState<boolean>(
     guess.every((l) => l.status === LetterStatus.pending)
   );
 
   useEffect(() => {
-    if (
-      guess.length > 0 &&
-      guess.every((l) => l.status !== LetterStatus.pending)
-    ) {
+    if (forceGreen) {
       animate(
         ".letter-front",
         {
@@ -31,7 +34,7 @@ export const WordleWord = ({ guess }: { guess: WordleGuess }) => {
         }
       );
     }
-  }, []);
+  }, [forceGreen]);
 
   useEffect(() => {
     if (!pending) {
